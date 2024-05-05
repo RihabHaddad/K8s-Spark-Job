@@ -1,0 +1,28 @@
+FROM openjdk:11-jre-slim
+
+# Set the Spark version
+ENV SPARK_VERSION=3.3.1
+ENV HADOOP_VERSION=3
+ENV SPARK_HOME=/opt/spark
+
+RUN apt-get update && \
+    apt-get install -y wget procps
+
+# Download and install Spark with Hadoop
+RUN mkdir -p "${SPARK_HOME}" && \
+    wget --no-verbose "https://archive.apache.org/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION.tgz" -O /tmp/spark.tgz && \
+    tar -xvf /tmp/spark.tgz -C "${SPARK_HOME}" --strip-components=1 && \
+    rm /tmp/spark.tgz
+
+# Add Spark to PATH
+ENV PATH="${SPARK_HOME}/bin:${PATH}"
+
+# Set work directory
+WORKDIR $SPARK_HOME
+
+# Copy the custom configuration file into Spark's config directory
+COPY config/spark-defaults.conf ./conf/
+
+EXPOSE 18080
+
+CMD ["./bin/spark-class", "org.apache.spark.deploy.history.HistoryServer"]
