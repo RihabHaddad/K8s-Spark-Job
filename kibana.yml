@@ -1,0 +1,16 @@
+# Kibana configuration
+
+server.port: 5601
+server.host: "0.0.0.0"
+
+elasticsearch.hosts: ["http://172.20.0.4:9200"]
+
+# Use if you have xpack security enabled
+# xpack.security.enabled: true
+# xpack.security.encryptionKey: "your_encryption_key"
+# xpack.encryptedSavedObjects.encryptionKey: "your_encrypted_saved_objects_encryption_key"
+
+# Logging settings
+logging.dest: stdout
+logging.quiet: false
+logging.verbose: false

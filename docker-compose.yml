@@ -7,17 +7,57 @@ services:
       - ./data_sources:/app/data_sources:rw
       - ./Logs/spark-logs:/app/Logs/spark-logs:rw
     networks:
-      - spark-network
+      spark-network:
+        ipv4_address: 172.20.0.2
 
   spark-history-server:
-    image: rihab26/spark_history_server:latest
+    image: rihab26/spark_history_serverr:latest
     volumes:
       - ./Logs/spark-logs:/tmp/spark-events:rw
     networks:
-      - spark-network
+      spark-network:
+        ipv4_address: 172.20.0.3
     ports:
       - "18080:18080"
+
+  elk:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+    container_name: elasticsearch
+    user: "root:root"  # Specify the user and group IDs
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./elasticsearch_data:/usr/share/elasticsearch/data/nodes:rw
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    networks:
+      spark-network:
+        ipv4_address: 172.20.0.4
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.15.2
+    container_name: logstash
+    volumes:
+      - ./logstash/config/logstash.conf:/usr/share/logstash/config/logstash.conf:rw
+    networks:
+      spark-network:
+        ipv4_address: 172.20.0.5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.15.2
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml:ro  
+    networks:
+      spark-network:
+        ipv4_address: 172.20.0.6
 
 networks:
   spark-network:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
