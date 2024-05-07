@@ -5,10 +5,12 @@ services:
     image: rihab26/spark_job:latest
     volumes:
       - ./data_sources:/app/data_sources:rw
-      - ./Logs/spark-logs:/app/Logs/spark-logs:rw
+      - ./Logs/spark-logs:/app/Logs/spark-logs:a+rwx
     networks:
       spark-network:
         ipv4_address: 172.20.0.2
+    # Keep the container running after the Spark job completes
+    command: tail -f /dev/null
 
   spark-history-server:
     image: rihab26/spark_history_serverr:latest

@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spark-ingestion-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: spark
+        image: rihab26/spark_job:latest
+        volumeMounts:
+        - name: spark-logs
+          mountPath: /app/Logs/spark-logs
+      restartPolicy: Never
+      volumes:
+      - name: spark-logs
+        persistentVolumeClaim:
+          claimName: spark-history-server-pvc
